@@ -1,120 +1,127 @@
 # PERFECT TIMING
 
-Tek parmakla oynanan, dikey ekranlı, minimalist bir mobil arcade oyunu. Hareket eden bloğu doğru
-anda durdurup hedef alana yerleştirirsin. *Easy to learn, hard to master.*
+A minimalist, one-tap mobile arcade game played in portrait. Stop the sliding block at the right
+moment to land it on the target. *Easy to learn, hard to master.*
 
-- **Teknoloji:** HTML5 Canvas ve saf JavaScript (ES modules). Bağımlılık ve build adımı yok.
-- **Platform:** Mobil tarayıcı (portre), PWA olarak ana ekrana eklenebilir. Masaüstünde portre çerçeve içinde çalışır.
-- **Neden bu teknoloji:** Klasör boştu, ortamda Godot/Unity yoktu, Node.js vardı. HTML5, telefonda anında
-  test edilebiliyor ve gerektiğinde Capacitor ile Android/iOS uygulamasına sarılabiliyor.
+**Play it:** https://gok-002.github.io/perfect-timing/
 
-## Çalıştırma
+- **Tech:** HTML5 Canvas and plain JavaScript (ES modules). No dependencies, no build step.
+- **Platform:** Mobile browsers (portrait). It can be added to the home screen as a PWA. On desktop it runs inside a portrait frame.
+- **Why this stack:** It runs instantly on any phone, deploys as static files, and can later be wrapped
+  into an Android/iOS app with Capacitor if needed.
+
+## Running locally
 
 ```bash
 npm start
 ```
 
-Ardından tarayıcıda `http://localhost:5173` adresini açın. Telefondan aynı Wi-Fi üzerinden test için:
+Then open `http://localhost:5173`. To test from a phone on the same Wi-Fi:
 
 ```bash
 HOST=0.0.0.0 npm start
 ```
 
-Sonra telefonda `http://<bilgisayar-ip>:5173` adresini açın. Windows PowerShell'de: `$env:HOST="0.0.0.0"; npm start`.
+Then open `http://<your-computer-ip>:5173` on the phone. In Windows PowerShell: `$env:HOST="0.0.0.0"; npm start`.
 
-> ES modülleri `file://` üzerinden yüklenmez. Oyunu her zaman bir sunucu üzerinden açın.
+> ES modules do not load over `file://`. Always open the game through a server.
 
-## Test
+## Tests
 
 ```bash
 npm test
 ```
 
-Node'un yerleşik test koşucusu (`node:test`) kullanılıyor. 44 test şunları kapsar: örtüşme hesabı ve derecelendirme,
-puan/çarpan/seri, zorluk eğrisi ve hareket desenleri, oyun durum makinesi (çift dokunma, tek oyun sonu,
-pause/resume, restart, continue), görevler, kayıt sistemi (bozuk veri onarımı, depolama hatası) ve
-reklam/mağaza sağlayıcısının yokluğu.
+Uses Node's built-in test runner (`node:test`). The 44 tests cover: overlap calculation and grading,
+score/multiplier/streaks, the difficulty curve and movement patterns, the game state machine (double taps,
+a single game over, pause/resume, restart, continue), missions, the save system (repairing corrupt data,
+storage failures), and the absence of an ad/store provider.
 
-## Nasıl oynanır
+## How to play
 
-- Ekrana dokun (masaüstünde **Space/Enter**) → blok düşer.
-- Blok hedef çerçeveyle (pembe kesikli alan) ne kadar ortalanırsa o kadar iyi:
-  **PERFECT** (sarı işaretlerin arasında) › **GREAT** › **GOOD** › **MISS** (geçerli örtüşme yok → oyun biter).
-- Arka arkaya GREAT+ alırsan combo büyür. Her 4 combo'da çarpan +0.5 artar (en fazla ×3). GOOD combo'yu bozar.
-- Arka arkaya PERFECT'ler ek bonus verir ve sonraki hedefleri biraz genişletir. Ustalığın ödülü budur.
-- **Esc / P** ile duraklatılır. Uygulama arka plana alınınca oyun otomatik duraklar.
+- Tap the screen (**Space/Enter** on desktop) and the block drops.
+- The better the block is centred on the target frame (the pink dashed area), the better the grade:
+  **PERFECT** (between the yellow markers) › **GREAT** › **GOOD** › **MISS** (no valid overlap, which ends the run).
+- Consecutive GREAT or better hits build a combo. Every 4 combo adds +0.5 to the multiplier (up to ×3). A GOOD breaks the combo.
+- Consecutive PERFECTs give bonus points and slightly widen the next targets, rewarding mastery.
+- **Esc / P** pauses. The game also pauses automatically when the app goes to the background.
 
-## Dosya yapısı
+## Project structure
 
 ```
-index.html              Ekranlar (menü, HUD, pause, oyun sonu, ayarlar, görevler)
-styles.css              Tüm arayüz stili, safe-area, animasyonlar
-manifest.webmanifest    PWA manifesti (portre, tam ekran)
-server.js               Bağımlılıksız yerel statik sunucu
-assets/icon.svg         Uygulama ikonu
+index.html              Screens (menu, HUD, pause, game over, settings, missions)
+styles.css              All UI styling, safe areas, animations
+manifest.webmanifest    PWA manifest (portrait, fullscreen)
+server.js               Zero-dependency local static server
+assets/icon.svg         App icon
 src/
-  config.js             TÜM denge sabitleri (eşikler, puanlar, zorluk, süreler)
-  main.js               Bağlantı katmanı: döngü, giriş, yaşam döngüsü, kayıt, görevler
-  core/                 Saf oyun mantığı (DOM yok, test edilebilir)
-    geometry.js           Örtüşme ve Perfect/Great/Good/Miss derecelendirmesi
-    motion.js             Blok hareket desenleri (linear, sine, pulse)
-    difficulty.js         Zorluk eğrisi, tur planı, hedef yerleşimi
-    scoring.js            Merkezi puan / combo / çarpan / perfect serisi
-    session.js            Oyun durum makinesi (ready → moving → dropping/falling → over)
-    missions.js           Görev havuzu ve ilerleme
+  config.js             ALL balance constants (thresholds, points, difficulty, timings)
+  main.js               Wiring layer: loop, input, lifecycle, saving, missions
+  core/                 Pure game logic (no DOM, fully testable)
+    geometry.js           Overlap and Perfect/Great/Good/Miss grading
+    motion.js             Block movement patterns (linear, sine, pulse)
+    difficulty.js         Difficulty curve, round plan, target placement
+    scoring.js            Central score / combo / multiplier / perfect streak
+    session.js            Game state machine (ready → moving → dropping/falling → over)
+    missions.js           Mission pool and progress
   systems/
-    storage.js            Kalıcı kayıt (localStorage, doğrulama, bellek yedeği)
-    audio.js              Web Audio ile sentezlenen sesler (ses dosyası yok)
-    haptics.js            Titreşim (desteklenmeyen cihazda sessizce devre dışı)
-    cosmetics.js          Tema kayıt defteri ve kilit açma kuralları
-    monetization.js       Reklam/mağaza entegrasyon noktaları (sağlayıcı yok → kapalı)
+    storage.js            Persistent save (localStorage, validation, in-memory fallback)
+    audio.js              Sounds synthesised with Web Audio (no audio files)
+    haptics.js            Vibration (silently disabled on unsupported devices)
+    cosmetics.js          Theme registry and unlock rules
+    monetization.js       Ad/store integration points (no provider, so disabled)
   render/
-    renderer.js           Canvas çizimi: kule, hedef, blok, kamera, menü arka planı
-    effects.js            Havuzlu parçacık, halka, sarsıntı ve flaş efektleri
-  ui/ui.js              DOM ekranları, HUD, popup ve toast'lar
-tests/                  Otomatik testler (node:test)
-docs/MONETIZATION.md    Reklam ve satın alma entegrasyon talimatları
+    renderer.js           Canvas drawing: tower, target, block, camera, menu backdrop
+    effects.js            Pooled particle, ring, shake and flash effects
+  ui/ui.js              DOM screens, HUD, popups and toasts
+tests/                  Automated tests (node:test)
+docs/MONETIZATION.md    Ad and purchase integration notes
 ```
 
-## Denge ayarı
+## Balancing
 
-Tüm sayılar `src/config.js` dosyasındadır:
+Every number lives in `src/config.js`:
 
-| Sabit | Anlamı | Başlangıç |
+| Constant | Meaning | Default |
 |---|---|---|
-| `ACCURACY.PERFECT` | Perfect toleransı: `max(oran × maxOffset, minWindowMs × hız)` | %7 / 28 ms |
-| `ACCURACY.GREAT` | Great toleransı | %24 / 70 ms |
-| `ACCURACY.MIN_VALID_OVERLAP_RATIO` | Bundan ince örtüşme MISS sayılır | %4 |
-| `DIFFICULTY.*` | Hız 360 → 920, hedef 300 → 120, blok 230 → 130 birim | |
-| `DIFFICULTY.PATTERNS` | `sine` 6. seviyede, `pulse` 14. seviyede açılır | |
-| `SCORING.*` | Good 10 / Great 20 / Perfect 40, seri bonusu, çarpan | |
+| `ACCURACY.PERFECT` | Perfect tolerance: `max(ratio × maxOffset, minWindowMs × speed)` | 7% / 28 ms |
+| `ACCURACY.GREAT` | Great tolerance | 24% / 70 ms |
+| `ACCURACY.MIN_VALID_OVERLAP_RATIO` | Overlaps thinner than this count as a MISS | 4% |
+| `DIFFICULTY.*` | Speed 360 → 920, target 300 → 120, block 230 → 130 units | |
+| `DIFFICULTY.PATTERNS` | `sine` unlocks at level 6, `pulse` at level 14 | |
+| `SCORING.*` | Good 10 / Great 20 / Perfect 40, streak bonus, multiplier | |
 
-Derecelendirme tamamen geometriktir. Zamana dayalı alt sınır, oyun hızlandığında da Perfect penceresinin
-en az ±28 ms kalmasını sağlar, böylece geç oyun adil kalır. Hedef çerçevenin içindeki sarı işaretler
-Perfect penceresini gösterir, bloğun ortasındaki çentik de oyuncunun hizalayacağı noktadır.
+Grading is purely geometric. The time-based floor keeps the Perfect window at least ±28 ms even as the
+game speeds up, so late game stays fair. The yellow markers inside the target show the Perfect window,
+and the notch in the middle of the block is the point the player lines up.
 
-## Uygulanan güvenlik önlemleri
+## Safeguards
 
-- **Çift puan yok:** Yalnızca `moving` durumu dokunma kabul eder. Çoklu parmak veya hızlı dokunmalar yok sayılır.
-- **Tek oyun sonu:** `finish()` korumalı, `gameOver` her koşuda bir kez tetiklenir.
-- **Kare süresi sınırı:** `dt` 50 ms ile sınırlı, NaN/negatif değerler yok sayılıyor. Arka plandan dönünce blok ışınlanmaz.
-- **Puan güvenliği:** Tüm puanlar sonlu, negatif olmayan tam sayılar. Geçersiz girdi `RangeError` fırlatır, NaN üretmez.
-- **Kayıt güvenliği:** Bozuk/elle değiştirilmiş kayıt onarılır. localStorage kapalıysa (gizli mod) oturum bellekte sürer.
-- **Hata yalıtımı:** Bir dinleyicideki (UI/ses) hata durum makinesini bozmaz. Bir karedeki hata döngüyü durdurmaz.
+- **No double scoring:** Only the `moving` state accepts a tap. Multi-finger or rapid taps are ignored.
+- **Single game over:** `finish()` is guarded, so `gameOver` fires once per run.
+- **Frame time clamp:** `dt` is capped at 50 ms and NaN/negative values are ignored, so the block never teleports after returning from the background.
+- **Score safety:** All scores are finite, non-negative integers. Invalid input throws a `RangeError` instead of producing NaN.
+- **Save safety:** Corrupt or tampered saves are repaired. If localStorage is unavailable (private mode), the session continues in memory.
+- **Error isolation:** An error in a listener (UI/audio) cannot corrupt the state machine, and an error in one frame does not stop the loop.
 
-## Kozmetik ve ilerleme
+## Progression and cosmetics
 
-- Görevler: 11 görevlik havuzdan aynı anda 3 aktif görev. Tamamlananlar koşu bitince yenileriyle değişir.
-- Yıldızlar temaları açar: Neon Night (0), Ember (3), Mint Dusk (8), Monochrome (15).
-- Yeni tema eklemek için `src/systems/cosmetics.js` içindeki `THEMES` dizisine bir nesne ekleyin.
+- Missions: 3 active missions at a time from a pool of 11. Completed ones are replaced when the run ends.
+- Stars unlock themes: Neon Night (0), Ember (3), Mint Dusk (8), Monochrome (15).
+- To add a theme, add an object to the `THEMES` array in `src/systems/cosmetics.js`.
 
-## Mobil uygulamaya dönüştürme (isteğe bağlı)
+## Deployment
 
-Proje bir web uygulaması olduğu için Capacitor ile paketlenebilir:
+The game is hosted on GitHub Pages from the root of the `main` branch. Pushing to `main` updates the live
+site within about a minute.
+
+## Packaging as a mobile app (optional)
+
+Because the project is a web app, it can be wrapped with Capacitor:
 
 ```bash
 npm i -D @capacitor/cli @capacitor/core @capacitor/android
 ```
 
-Ardından `npx cap init` ve `npx cap add android` adımları gelir (`webDir` = proje kökü veya kopyalanmış bir `www/`).
-Bu adımlar bu sürümde **yapılmadı ve test edilmedi.**
+Then run `npx cap init` and `npx cap add android` (`webDir` = the project root or a copied `www/` folder).
+These steps have **not been done or tested** in this version.
