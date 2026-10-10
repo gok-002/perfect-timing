@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#070914" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="PERFECT TIMING - stop the block at the perfect moment. One tap. Easy to learn, hard to master." />
+  <title>Perfect Timing</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="app" class="app" data-screen="menu">
+    <canvas id="game" class="game-canvas" aria-label="Game field"></canvas>
+
+    <!-- In-game HUD -->
+    <header id="hud" class="hud" aria-live="polite">
+      <button id="btn-pause" class="icon-btn hud-pause" aria-label="Pause">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>
+      </button>
+      <div class="hud-center">
+        <div id="hud-score" class="hud-score">0</div>
+        <div class="hud-best">BEST <span id="hud-best">0</span></div>
+      </div>
+      <div class="hud-combo" id="hud-combo">
+        <div class="hud-mult" id="hud-mult">×1</div>
+        <div class="combo-meter"><div class="combo-fill" id="combo-fill"></div></div>
+        <div class="hud-streak" id="hud-streak"></div>
+      </div>
+    </header>
+
+    <div id="popup-layer" class="popup-layer" aria-hidden="true"></div>
+    <div id="toast-layer" class="toast-layer" role="status"></div>
+
+    <!-- Main menu -->
+    <section id="screen-menu" class="screen screen-menu" aria-label="Main menu">
+      <div class="logo" aria-label="Perfect Timing">
+        <span class="logo-top">PERFECT</span>
+        <span class="logo-bar"><span class="logo-bar-fill"></span></span>
+        <span class="logo-bottom">TIMING</span>
+      </div>
+      <div class="menu-best">
+        <span class="label">BEST SCORE</span>
+        <span id="menu-best" class="value">0</span>
+      </div>
+      <button id="btn-play" class="btn btn-primary btn-play">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+        PLAY
+      </button>
+      <div class="menu-row">
+        <button id="btn-missions" class="icon-btn labeled" aria-label="Missions">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.1l6.1-.7z"/></svg>
+          <span id="menu-stars" class="badge">0</span>
+        </button>
+        <button id="btn-sound" class="icon-btn" aria-label="Toggle sound" aria-pressed="true">
+          <svg class="ic-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <svg class="ic-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <button id="btn-settings" class="icon-btn" aria-label="Settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm8.4 4.6l-1.9-.4a6.7 6.7 0 0 0 0-1.4l1.9-.4a.6.6 0 0 0 .4-.8l-.9-2.2a.6.6 0 0 0-.8-.3l-1.7.9a7 7 0 0 0-1-1l.9-1.7a.6.6 0 0 0-.3-.8l-2.2-.9a.6.6 0 0 0-.8.4l-.4 1.9a6.7 6.7 0 0 0-1.4 0l-.4-1.9a.6.6 0 0 0-.8-.4l-2.2.9a.6.6 0 0 0-.3.8l.9 1.7a7 7 0 0 0-1 1l-1.7-.9a.6.6 0 0 0-.8.3l-.9 2.2a.6.6 0 0 0 .4.8l1.9.4a6.7 6.7 0 0 0 0 1.4l-1.9.4a.6.6 0 0 0-.4.8l.9 2.2c.1.3.5.5.8.3l1.7-.9c.3.4.6.7 1 1l-.9 1.7c-.2.3 0 .7.3.8l2.2.9c.3.1.7-.1.8-.4l.4-1.9h1.4l.4 1.9c.1.3.5.5.8.4l2.2-.9c.3-.1.5-.5.3-.8l-.9-1.7c.4-.3.7-.6 1-1l1.7.9c.3.2.7 0 .8-.3l.9-2.2a.6.6 0 0 0-.4-.8z"/></svg>
+        </button>
+      </div>
+      <p class="menu-hint">Tap anywhere to stop the block</p>
+    </section>
+
+    <!-- Pause -->
+    <section id="screen-pause" class="screen overlay" aria-label="Paused">
+      <div class="panel">
+        <h2 class="panel-title">PAUSED</h2>
+        <button id="btn-resume" class="btn btn-primary">RESUME</button>
+        <button id="btn-restart" class="btn btn-ghost">RESTART</button>
+        <button id="btn-pause-menu" class="btn btn-ghost">MENU</button>
+      </div>
+    </section>
+
+    <!-- Game over -->
+    <section id="screen-over" class="screen overlay" aria-label="Game over">
+      <div class="panel panel-over">
+        <div id="over-newbest" class="newbest">NEW BEST</div>
+        <div class="over-label">SCORE</div>
+        <div id="over-score" class="over-score">0</div>
+        <div class="stats">
+          <div class="stat"><span class="stat-v" id="over-best">0</span><span class="stat-l">BEST</span></div>
+          <div class="stat"><span class="stat-v" id="over-pstreak">0</span><span class="stat-l">PERFECT STREAK</span></div>
+          <div class="stat"><span class="stat-v" id="over-blocks">0</span><span class="stat-l">BLOCKS</span></div>
+        </div>
+        <ul id="over-missions" class="over-missions"></ul>
+        <button id="btn-again" class="btn btn-primary btn-again">PLAY AGAIN</button>
+        <button id="btn-continue" class="btn btn-ghost" hidden>CONTINUE (WATCH AD)</button>
+        <button id="btn-over-menu" class="btn btn-ghost">MENU</button>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="screen-settings" class="screen overlay" aria-label="Settings">
+      <div class="panel panel-sheet">
+        <h2 class="panel-title">SETTINGS</h2>
+        <label class="toggle"><span>Sound</span><input type="checkbox" id="set-sound" /><i></i></label>
+        <label class="toggle"><span>Vibration</span><input type="checkbox" id="set-haptics" /><i></i></label>
+        <label class="toggle"><span>Screen shake</span><input type="checkbox" id="set-shake" /><i></i></label>
+        <div class="section-label">THEME</div>
+        <div id="theme-list" class="theme-list"></div>
+        <button id="btn-reset" class="btn btn-danger-ghost">RESET PROGRESS</button>
+        <button id="btn-settings-close" class="btn btn-primary">DONE</button>
+      </div>
+    </section>
+
+    <!-- Missions -->
+    <section id="screen-missions" class="screen overlay" aria-label="Missions">
+      <div class="panel panel-sheet">
+        <h2 class="panel-title">MISSIONS</h2>
+        <div class="stars-line">★ <span id="missions-stars">0</span> stars earned</div>
+        <ul id="mission-list" class="mission-list"></ul>
+        <p class="mission-note">Stars unlock new themes in Settings.</p>
+        <button id="btn-missions-close" class="btn btn-primary">DONE</button>
+      </div>
+    </section>
+
+    <noscript><p class="noscript">PERFECT TIMING needs JavaScript enabled.</p></noscript>
+  </main>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

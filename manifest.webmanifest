@@ -1,0 +1,13 @@
+{
+  "name": "Perfect Timing",
+  "short_name": "Perfect Timing",
+  "description": "Stop the block at the perfect moment. One tap. Easy to learn, hard to master.",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#070914",
+  "theme_color": "#070914",
+  "icons": [
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
